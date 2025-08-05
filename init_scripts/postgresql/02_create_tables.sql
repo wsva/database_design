@@ -15,8 +15,8 @@ create table sys_token (
   token varchar(1000) not null primary key,
   account_id varchar(100) not null,
   ip varchar(100) not null,
-  login_at date not null,
-  expire_at date not null
+  login_at timestamptz not null,
+  expire_at timestamptz not null
 );
 
 create table sys_menu (
