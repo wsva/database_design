@@ -12,11 +12,11 @@ create table sys_account (
 );
 
 create table sys_token (
-  token varchar(1000) not null primary key,
+  access_token varchar(1000) not null primary key,
+  refresh_token varchar(1000) not null,
+  client_id varchar(100) not null,
   account_id varchar(100) not null,
-  ip varchar(100) not null,
-  login_at timestamptz not null,
-  expire_at timestamptz not null
+  ip varchar(100) not null
 );
 
 create table sys_menu (
