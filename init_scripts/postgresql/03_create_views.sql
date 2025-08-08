@@ -1,6 +1,7 @@
 create or replace view v_res_passwd_machine as
 select
-  d.project_name as project_name,
+  d.project_id,
+  d.project_name,
   (
     select string_agg(ip, ', ')
     from (
@@ -18,8 +19,7 @@ select
   a.encrypted,
   a.class_id,
   'res_passwd_machine' as table_name,
-  d.team_id as team_id,
-  d.project_id as project_id,
+  d.team_id,
   a.main_ip
 from
   res_passwd_machine a
@@ -29,7 +29,8 @@ from
 
 create or replace view v_res_passwd_db as
 select
-  c.project_name as project_name,
+  c.project_id,
+  c.project_name,
   (
     select string_agg(ip, ', ')
     from (
@@ -50,8 +51,7 @@ select
   a.encrypted,
   a.class_id,
   'res_passwd_db' as table_name,
-  c.team_id as team_id,
-  c.project_id as project_id,
+  c.team_id,
   a.db_id as db_id
 from
   res_passwd_db a
@@ -60,7 +60,8 @@ from
 
 create or replace view v_res_passwd_address as
 select
-  p.project_name as project_name,
+  p.project_id,
+  p.project_name,
   pa.address,
   pa.note,
   pa.username,
@@ -69,8 +70,7 @@ select
   pa.encrypted,
   pa.class_id,
   'res_passwd_address' as table_name,
-  p.team_id as team_id,
-  p.project_id as project_id
+  p.team_id
 from
   res_passwd_address pa
   join res_project p on pa.project_id = p.project_id;
@@ -78,7 +78,8 @@ from
 
 create or replace view v_res_passwd_other as
 select
-  p.project_name as project_name,
+  p.project_id,
+  p.project_name,
   '' as address,
   po.note,
   po.username,
@@ -87,39 +88,38 @@ select
   po.encrypted,
   po.class_id,
   'res_passwd_other' as table_name,
-  p.team_id as team_id,
-  po.project_id as project_id
+  p.team_id
 from
   res_passwd_other po
   join res_project p on po.project_id = p.project_id;
 
 
 create or replace view v_res_passwd_all as 
-select p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id, p.project_id 
+select p.project_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id
 from v_res_passwd_machine p union
-select p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id, p.project_id 
+select p.project_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id
 from v_res_passwd_db p union
-select p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id, p.project_id 
+select p.project_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id
 from v_res_passwd_address p union
-select p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id, p.project_id 
+select p.project_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted, p.class_id, p.table_name, p.team_id
 from v_res_passwd_other p;
 
 create or replace view v_res_grant_by_team as
-select t.account_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted
+select t.account_id, p.project_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted
   from res_grant_team t, v_res_passwd_all p
  where t.team_id = p.team_id;
 
 create or replace view v_res_grant_by_project as
-select t.account_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted
+select t.account_id, p.project_id, p.project_name, p.address, p.note, p.username, p.passwd, p.uuid, p.encrypted
   from res_grant_project t, v_res_passwd_all p
  where t.project_id = p.project_id
  and t.class_id >= p.class_id;
 
 create or replace view v_res_all_granted_passwd as
-select g.account_id, g.project_name, g.address, g.note, g.username, g.passwd, g.uuid, g.encrypted
+select g.account_id, g.project_id, g.project_name, g.address, g.note, g.username, g.passwd, g.uuid, g.encrypted
   from v_res_grant_by_team g
 union
-select g.account_id, g.project_name, g.address, g.note, g.username, g.passwd, g.uuid, g.encrypted
+select g.account_id, g.project_id, g.project_name, g.address, g.note, g.username, g.passwd, g.uuid, g.encrypted
   from v_res_grant_by_project g;
 
 create or replace view v_res_all_encrypted_passwd as
